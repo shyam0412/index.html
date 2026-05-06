@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FitForge</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f5f5f7;--white:#ffffff;--card:#ffffff;
+  --primary:#1db954;--primary-dark:#17a347;--primary-light:#e8f8ee;
+  --accent:#ff6b35;--accent-light:#fff0ea;
+  --text:#1a1a2e;--text2:#6b7280;--text3:#9ca3af;
+  --border:#e5e7eb;--shadow:0 2px 16px rgba(0,0,0,0.08);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
+  --radius:16px;--radius-sm:10px;--radius-xs:8px;
+  --font:'Nunito',sans-serif;--font2:'Nunito Sans',sans-serif;
+  --nav-h:72px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden}
+/* SCREENS */
+.screen{display:none;min-height:100vh;flex-direction:column;animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1)}
+.screen.active{display:flex}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pop{0%{transform:scale(0.85)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(29,185,84,0.4)}70%{box-shadow:0 0 0 10px rgba(29,185,84,0)}}
+@keyframes checkIn{0%{transform:scale(0) rotate(-20deg)}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes ringFill{from{stroke-dashoffset:283}to{stroke-dashoffset:0}}
+@keyframes countUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;font-family:var(--font);font-weight:700;transition:all 0.2s;border-radius:50px;letter-spacing:0.3px}
+.btn:active{transform:scale(0.96)}
+.btn-primary{background:var(--primary);color:#fff;padding:16px 32px;font-size:16px;box-shadow:0 4px 16px rgba(29,185,84,0.35)}
+.btn-primary:hover{background:var(--primary-dark);box-shadow:0 6px 20px rgba(29,185,84,0.45)}
+.btn-secondary{background:var(--white);color:var(--text);padding:14px 28px;font-size:15px;border:1.5px solid var(--border)}
+.btn-ghost{background:transparent;color:var(--text2);padding:10px 20px;font-size:14px}
+.btn-icon{width:44px;height:44px;border-radius:50%;background:var(--white);border:1.5px solid var(--border);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s}
+.btn-icon:active{transform:scale(0.92);background:var(--bg)}
+
+/* HEADER */
+.app-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:100}
+.header-logo{font-size:22px;font-weight:900;color:var(--primary);letter-spacing:-0.5px}
+.header-user{display:flex;align-items:center;gap:10px}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#0ea847);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:14px}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--white);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 8px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.06)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;cursor:pointer;border-radius:var(--radius-sm);transition:all 0.2s;border:none;background:none;font-family:var(--font)}
+.nav-item.active .nav-icon{background:var(--primary-light);color:var(--primary)}
+.nav-item.active .nav-label{color:var(--primary);font-weight:700}
+.nav-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.25s;color:var(--text3);background:transparent}
+.nav-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.scroll-body{flex:1;overflow-y:auto;padding-bottom:calc(var(--nav-h) + 16px)}
+
+/* CARDS */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-pad{padding:20px}
+
+/* ONBOARDING */
+.onboard-wrap{flex:1;display:flex;flex-direction:column;padding:24px 20px;max-width:480px;margin:0 auto;width:100%}
+.onboard-progress{display:flex;gap:6px;margin-bottom:32px}
+.onboard-dot{height:5px;border-radius:3px;background:var(--border);flex:1;transition:all 0.4s}
+.onboard-dot.active{background:var(--primary)}
+.onboard-dot.done{background:var(--primary);opacity:0.4}
+.step-tag{display:inline-flex;align-items:center;gap:6px;background:var(--primary-light);color:var(--primary);font-size:12px;font-weight:700;padding:6px 14px;border-radius:50px;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}
+.step-heading{font-size:32px;font-weight:900;color:var(--text);line-height:1.1;margin-bottom:8px}
+.step-sub{font-size:15px;color:var(--text2);margin-bottom:28px;font-family:var(--font2)}
+.choice-grid{display:grid;gap:12px}
+.choice-grid.cols2{grid-template-columns:1fr 1fr}
+.choice-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius);padding:18px 16px;cursor:pointer;transition:all 0.2s;position:relative;text-align:left}
+.choice-card:hover{border-color:var(--primary);background:var(--primary-light)}
+.choice-card.selected{border-color:var(--primary);background:var(--primary-light)}
+.choice-card.selected::after{content:'✓';position:absolute;top:12px;right:14px;color:var(--primary);font-size:16px;font-weight:800}
+.choice-icon{font-size:28px;margin-bottom:8px}
+.choice-name{font-size:15px;font-weight:800;color:var(--text)}
+.choice-desc{font-size:12px;color:var(--text2);margin-top:3px;font-family:var(--font2)}
+.choice-row{display:flex;align-items:center;gap:12px}
+.choice-row .choice-icon{font-size:22px;margin:0}
+.slider-wrap{margin-bottom:24px}
+.slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.slider-key{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px}
+.slider-val{font-size:28px;font-weight:900;color:var(--primary)}
+.slider-unit{font-size:14px;color:var(--text2);font-weight:600;margin-left:2px}
+input[type=range]{width:100%;-webkit-appearance:none;height:6px;background:var(--border);border-radius:3px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--primary);cursor:pointer;box-shadow:0 2px 8px rgba(29,185,84,0.4);border:3px solid white}
+.name-input{width:100%;padding:16px 20px;font-size:18px;font-weight:700;font-family:var(--font);border:2px solid var(--border);border-radius:var(--radius);background:var(--white);color:var(--text);outline:none;transition:border-color 0.2s}
+.name-input:focus{border-color:var(--primary)}
+.nav-row{display:flex;gap:12px;margin-top:24px}
+
+/* HOME SCREEN */
+.hero-card{background:linear-gradient(135deg,#1db954,#0ea847);border-radius:var(--radius);padding:24px;margin:16px 20px;position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(29,185,84,0.3)}
+.hero-card::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,0.1);border-radius:50%}
+.hero-card::after{content:'';position:absolute;right:30px;bottom:-30px;width:80px;height:80px;background:rgba(255,255,255,0.07);border-radius:50%}
+.hero-greeting{font-size:14px;color:rgba(255,255,255,0.8);font-weight:600;margin-bottom:4px}
+.hero-name{font-size:26px;font-weight:900;color:white;margin-bottom:16px}
+.hero-meta{display:flex;gap:16px;margin-bottom:20px}
+.hero-stat{background:rgba(255,255,255,0.2);border-radius:var(--radius-sm);padding:10px 14px;backdrop-filter:blur(4px)}
+.hero-stat-val{font-size:20px;font-weight:900;color:white}
+.hero-stat-label{font-size:11px;color:rgba(255,255,255,0.8);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.start-workout-btn{background:white;color:var(--primary);border:none;padding:14px 24px;border-radius:50px;font-size:15px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;font-family:var(--font)}
+.start-workout-btn:active{transform:scale(0.96)}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;margin-bottom:12px}
+.section-title{font-size:18px;font-weight:900;color:var(--text)}
+.see-all{font-size:13px;font-weight:700;color:var(--primary);cursor:pointer}
+
+/* WEEK STRIP */
+.week-strip{display:flex;gap:8px;padding:0 20px;overflow-x:auto;scrollbar-width:none;margin-bottom:20px}
+.week-strip::-webkit-scrollbar{display:none}
+.day-chip{flex-shrink:0;width:52px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;border:2px solid transparent;background:var(--white)}
+.day-chip.today{border-color:var(--primary);background:var(--primary-light)}
+.day-chip.done{background:var(--primary);border-color:var(--primary)}
+.day-chip.done .day-num{color:white}
+.day-chip.done .day-name{color:rgba(255,255,255,0.8)}
+.day-chip.today .day-num{color:var(--primary)}
+.day-chip.today .day-name{color:var(--primary)}
+.day-num{font-size:18px;font-weight:900;color:var(--text)}
+.day-name{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px}
+.day-dot{width:5px;height:5px;border-radius:50%}
+.day-chip.done .day-dot{background:rgba(255,255,255,0.7)}
+.day-chip.today .day-dot{background:var(--primary)}
+.day-chip:not(.done):not(.today) .day-dot{background:var(--border)}
+
+/* WORKOUT CARDS */
+.workout-list{padding:0 20px;display:flex;flex-direction:column;gap:12px}
+.ex-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.25s;border:2px solid transparent;position:relative;overflow:hidden}
+.ex-card:active{transform:scale(0.98);border-color:var(--primary)}
+.ex-card.completed{border-color:var(--primary);background:var(--primary-light)}
+.ex-card.completed::after{content:'✓';position:absolute;top:14px;right:16px;width:28px;height:28px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;animation:checkIn 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+.ex-emoji-wrap{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.ex-card-body{flex:1;min-width:0}
+.ex-card-name{font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px}
+.ex-card-meta{display:flex;gap:12px;font-size:12px;color:var(--text2);font-family:var(--font2);font-weight:600}
+.ex-card-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.ex-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px}
+.tag-warmup{background:#e0f2fe;color:#0369a1}
+.tag-main{background:#fef3c7;color:#d97706}
+.tag-cool{background:#dcfce7;color:#15803d}
+.tag-cardio{background:#fce7f3;color:#be185d}
+
+/* DETAIL SCREEN */
+.detail-hero{height:220px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0}
+.detail-hero-emoji{font-size:90px;animation:bounce 2s ease-in-out infinite}
+.detail-info{padding:20px;flex:1;overflow-y:auto;padding-bottom:100px}
+.detail-name{font-size:28px;font-weight:900;color:var(--text);margin-bottom:8px}
+.detail-badges{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.detail-badge{font-size:12px;font-weight:700;padding:6px 14px;border-radius:50px;text-transform:uppercase;letter-spacing:0.5px}
+.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.metric-box{background:var(--bg);border-radius:var(--radius-sm);padding:14px;text-align:center}
+.metric-val{font-size:24px;font-weight:900;color:var(--text)}
+.metric-label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.video-btn{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#ff0000,#cc0000);border-radius:var(--radius);padding:18px 20px;margin-bottom:24px;cursor:pointer;text-decoration:none;transition:all 0.2s;box-shadow:0 4px 16px rgba(255,0,0,0.25)}
+.video-btn:active{transform:scale(0.98)}
+.play-circle{width:48px;height:48px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.play-tri{width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:18px solid white;margin-left:4px}
+.video-btn-text{color:white}
+.video-btn-title{font-size:15px;font-weight:800}
+.video-btn-sub{font-size:12px;opacity:0.8;margin-top:2px;font-family:var(--font2)}
+.steps-section{margin-bottom:24px}
+.steps-heading{font-size:17px;font-weight:900;color:var(--text);margin-bottom:14px}
+.step-row{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
+.step-badge{width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-text{font-size:14px;color:var(--text);line-height:1.6;font-family:var(--font2);font-weight:600}
+.tips-box{background:linear-gradient(135deg,#fef3c7,#fde68a20);border:1.5px solid #fde68a;border-radius:var(--radius);padding:18px;margin-bottom:24px}
+.tips-heading{font-size:13px;font-weight:800;color:#d97706;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.tip-row{display:flex;gap:10px;margin-bottom:8px;font-size:13px;color:#92400e;line-height:1.5;font-family:var(--font2);font-weight:600}
+.tip-row::before{content:'💡';flex-shrink:0}
+.done-btn{width:calc(100% - 40px);margin:0 20px 20px;background:var(--primary);color:white;border:none;padding:18px;border-radius:50px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font);box-shadow:0 6px 20px rgba(29,185,84,0.35);transition:all 0.2s;animation:pulse 2s infinite}
+.done-btn:active{transform:scale(0.97)}
+
+/* TIMER */
+.timer-hero{background:linear-gradient(135deg,#1db954,#0ea847);padding:40px 24px;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden}
+.timer-hero::before{content:'';position:absolute;right:-30px;top:-30px;width:150px;height:150px;background:rgba(255,255,255,0.1);border-radius:50%}
+.timer-ring-wrap{position:relative;width:180px;height:180px;margin-bottom:24px}
+.timer-ring-wrap svg{transform:rotate(-90deg)}
+.timer-ring-wrap circle{fill:none;stroke-width:10;stroke-linecap:round}
+.timer-track{stroke:rgba(255,255,255,0.2)}
+.timer-prog{stroke:white;stroke-dasharray:502;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear;filter:drop-shadow(0 0 6px rgba(255,255,255,0.5))}
+.timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.timer-num{font-size:48px;font-weight:900;color:white;letter-spacing:-1px}
+.timer-status-txt{font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:1px}
+.timer-ctrls{display:flex;gap:14px;align-items:center}
+.ctrl-btn{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.2s}
+.ctrl-btn:active{transform:scale(0.92)}
+.ctrl-main{width:70px;height:70px;font-size:28px;background:white;color:var(--primary);box-shadow:0 4px 20px rgba(0,0,0,0.2)}
+.ctrl-side{background:rgba(255,255,255,0.2);color:white;backdrop-filter:blur(4px)}
+.presets-wrap{padding:20px}
+.presets-title{font-size:14px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.preset-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.preset-chip{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-sm);padding:12px 6px;text-align:center;cursor:pointer;transition:all 0.2s}
+.preset-chip.active,.preset-chip:hover{border-color:var(--primary);background:var(--primary-light)}
+.preset-chip-val{font-size:18px;font-weight:900;color:var(--text)}
+.preset-chip-label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.preset-chip.active .preset-chip-val,.preset-chip.active .preset-chip-label{color:var(--primary)}
+
+/* PROGRESS */
+.progress-hero{background:linear-gradient(135deg,#667eea,#764ba2);padding:24px 20px;position:relative;overflow:hidden}
+.progress-hero::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,0.1);border-radius:50%}
+.progress-hero-title{font-size:14px;color:rgba(255,255,255,0.8);font-weight:700;margin-bottom:4px;position:relative;z-index:1}
+.progress-hero-val{font-size:40px;font-weight:900;color:white;position:relative;z-index:1}
+.progress-hero-sub{font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px;font-family:var(--font2);position:relative;z-index:1}
+.progress-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px 20px}
+.p-stat{background:var(--white);border-radius:var(--radius-sm);padding:16px;text-align:center;box-shadow:var(--shadow)}
+.p-stat-val{font-size:26px;font-weight:900;color:var(--text)}
+.p-stat-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.cal-wrap{padding:0 20px 20px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-header-cell{text-align:center;font-size:10px;font-weight:800;color:var(--text2);padding:4px 0;text-transform:uppercase}
+.cal-cell{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text2);background:var(--white);border:1.5px solid var(--border);transition:all 0.2s}
+.cal-cell.today{border-color:var(--primary);color:var(--primary)}
+.cal-cell.done{background:var(--primary);border-color:var(--primary);color:white}
+.cal-cell.empty{background:transparent;border-color:transparent}
+.bar-chart{padding:0 20px 20px}
+.bar-chart-row{display:flex;align-items:flex-end;gap:8px;height:80px;margin-bottom:6px}
+.bar{flex:1;border-radius:6px 6px 0 0;min-height:4px;transition:height 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+.bar.active{background:linear-gradient(180deg,var(--primary),#0ea847)}
+.bar.inactive{background:var(--border)}
+.bar-labels{display:flex;gap:8px}
+.bar-label{flex:1;text-align:center;font-size:10px;font-weight:700;color:var(--text2)}
+.log-list{padding:0 20px 20px;display:flex;flex-direction:column;gap:8px}
+.log-item{background:var(--white);border-radius:var(--radius-sm);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
+.log-name{font-size:14px;font-weight:800;color:var(--text)}
+.log-date{font-size:12px;color:var(--text2);font-family:var(--font2);margin-top:2px}
+.log-cal{font-size:13px;font-weight:800;color:var(--primary)}
+
+/* NUTRITION */
+.nut-hero{background:linear-gradient(135deg,#f093fb,#f5576c);padding:24px 20px;position:relative;overflow:hidden}
+.nut-hero::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,0.1);border-radius:50%}
+.nut-hero-title{font-size:26px;font-weight:900;color:white;margin-bottom:4px;position:relative;z-index:1}
+.nut-hero-sub{font-size:13px;color:rgba(255,255,255,0.8);font-family:var(--font2);position:relative;z-index:1}
+.macro-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:16px 20px}
+.macro-card{background:var(--white);border-radius:var(--radius-sm);padding:14px 8px;text-align:center;box-shadow:var(--shadow)}
+.macro-circle{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:16px}
+.macro-val{font-size:18px;font-weight:900;color:var(--text)}
+.macro-label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px;margin-top:2px}
+.meal-list{padding:0 20px;display:flex;flex-direction:column;gap:10px;padding-bottom:20px}
+.meal-card{background:var(--white);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.meal-time-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.meal-name{font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px}
+.meal-desc{font-size:13px;color:var(--text2);line-height:1.5;font-family:var(--font2);margin-bottom:10px}
+.meal-macros-row{display:flex;gap:8px;flex-wrap:wrap}
+.meal-macro-pill{background:var(--bg);border-radius:50px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--text2)}
+.nut-tip-list{padding:0 20px 20px;display:flex;flex-direction:column;gap:8px}
+.nut-tip{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:var(--radius-sm);padding:14px 16px;display:flex;gap:10px;align-items:flex-start}
+.nut-tip-text{font-size:13px;color:#78350f;line-height:1.5;font-family:var(--font2);font-weight:600}
+
+/* COMPLETE OVERLAY */
+.complete-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);align-items:flex-end;justify-content:center;padding:0}
+.complete-overlay.show{display:flex;animation:fadeIn 0.3s}
+.complete-sheet{background:var(--white);border-radius:28px 28px 0 0;padding:32px 24px 48px;width:100%;max-width:480px;text-align:center;animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+.trophy{font-size:64px;margin-bottom:12px;animation:bounce 1s ease-in-out 3}
+.complete-title{font-size:28px;font-weight:900;color:var(--text);margin-bottom:4px}
+.complete-sub{font-size:15px;color:var(--text2);font-family:var(--font2);margin-bottom:24px}
+.complete-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.cs{background:var(--bg);border-radius:var(--radius-sm);padding:14px}
+.cs-val{font-size:24px;font-weight:900;color:var(--primary)}
+.cs-label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+/* NUTRITION V2 */
+.nut-meal-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:10px;border:1.5px solid var(--border)}
+.nut-meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.nut-macros-mini{display:flex;gap:8px;font-size:12px;font-weight:800}
+.nut-meal-name{font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px}
+.nut-meal-desc{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:10px;font-family:var(--font2)}
+.nut-pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.nut-pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:50px}
+.cal-pill{background:#fff3e0;color:#e65100}
+.p-pill{background:#e3f2fd;color:#0277bd}
+.c-pill{background:#e8f5e9;color:#2e7d32}
+.f-pill{background:#fce4ec;color:#880e4f}
+.nut-action-row{display:flex;gap:8px}
+.nut-action-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 6px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;text-decoration:none;transition:all 0.2s;font-family:var(--font);cursor:pointer;border:none}
+.nut-action-btn:active{transform:scale(0.96)}
+.yt-btn{background:#ff0000;color:white}
+.yt-btn:hover{background:#cc0000}
+.zomato-btn{background:#e23744;color:white}
+.zomato-btn:hover{background:#c42d3a}
+.swiggy-btn{background:#fc8019;color:white}
+.swiggy-btn:hover{background:#e06a0e}
+.diet-chip{padding:8px 16px;border-radius:50px;font-size:12px;font-weight:700;border:2px solid var(--border);background:var(--white);cursor:pointer;white-space:nowrap;transition:all 0.2s;font-family:var(--font);flex-shrink:0}
+.diet-chip.active{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+.diet-chip:hover{border-color:var(--primary)}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--text);color:white;padding:12px 20px;border-radius:50px;font-size:14px;font-weight:700;z-index:1000;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* MISC */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text2)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-text{font-size:15px;font-family:var(--font2)}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════ ONBOARDING ═══ -->
+<div class="screen active" id="s-onboard">
+  <div style="background:linear-gradient(135deg,#1db954,#0ea847);padding:48px 24px 40px;text-align:center;position:relative;overflow:hidden">
+    <div style="position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,0.1);border-radius:50%"></div>
+    <div style="font-size:48px;margin-bottom:12px">🏋️</div>
+    <div style="font-size:36px;font-weight:900;color:white;letter-spacing:-0.5px">FitForge</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.85);margin-top:6px;font-family:var(--font2)">Your personal gym intelligence</div>
+  </div>
+  <div class="onboard-wrap" id="onboard-steps">
+    <!-- injected by JS -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ MAIN APP ════ -->
+<div class="screen" id="s-app">
+  <div class="app-header">
+    <div class="header-logo">FitForge</div>
+    <div class="header-user">
+      <div id="streak-pill" style="display:flex;align-items:center;gap:6px;background:var(--primary-light);border-radius:50px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--primary)">🔥 <span id="streak-num">0</span></div>
+      <div class="avatar" id="app-avatar">U</div>
+    </div>
+  </div>
+
+  <!-- TAB CONTENTS -->
+  <div class="scroll-body" id="tab-home" style="display:block"><!-- injected --></div>
+  <div class="scroll-body" id="tab-timer" style="display:none">
+    <div class="timer-hero">
+      <div class="timer-ring-wrap">
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <defs><linearGradient id="tg"><stop offset="0%" stop-color="white"/><stop offset="100%" stop-color="rgba(255,255,255,0.6)"/></linearGradient></defs>
+          <circle class="timer-track" cx="90" cy="90" r="80"/>
+          <circle class="timer-prog" id="timer-ring-el" cx="90" cy="90" r="80"/>
+        </svg>
+        <div class="timer-center">
+          <div class="timer-num" id="timer-display">1:00</div>
+          <div class="timer-status-txt" id="timer-status">READY</div>
+        </div>
+      </div>
+      <div class="timer-ctrls">
+        <button class="ctrl-btn ctrl-side" id="btn-reset">⏹</button>
+        <button class="ctrl-btn ctrl-main" id="btn-toggle">▶</button>
+        <button class="ctrl-btn ctrl-side" id="btn-skip">⏭</button>
+      </div>
+    </div>
+    <div class="presets-wrap">
+      <div class="presets-title">Rest Timers</div>
+      <div class="preset-grid">
+        <div class="preset-chip active" data-secs="30"><div class="preset-chip-val">30s</div><div class="preset-chip-label">Short</div></div>
+        <div class="preset-chip" data-secs="60"><div class="preset-chip-val">1m</div><div class="preset-chip-label">Normal</div></div>
+        <div class="preset-chip" data-secs="90"><div class="preset-chip-val">90s</div><div class="preset-chip-label">Medium</div></div>
+        <div class="preset-chip" data-secs="120"><div class="preset-chip-val">2m</div><div class="preset-chip-label">Heavy</div></div>
+      </div>
+      <div class="presets-title">Work Intervals</div>
+      <div class="preset-grid">
+        <div class="preset-chip" data-secs="20"><div class="preset-chip-val">20s</div><div class="preset-chip-label">HIIT</div></div>
+        <div class="preset-chip" data-secs="30"><div class="preset-chip-val">30s</div><div class="preset-chip-label">Plank</div></div>
+        <div class="preset-chip" data-secs="45"><div class="preset-chip-val">45s</div><div class="preset-chip-label">Circuit</div></div>
+        <div class="preset-chip" data-secs="60"><div class="preset-chip-val">60s</div><div class="preset-chip-label">Cardio</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-body" id="tab-progress" style="display:none"><!-- injected --></div>
+  <div class="scroll-body" id="tab-nutrition" style="display:none"><!-- injected --></div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="home"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></button>
+    <button class="nav-item" data-tab="timer"><div class="nav-icon">⏱️</div><div class="nav-label">Timer</div></button>
+    <button class="nav-item" data-tab="progress"><div class="nav-icon">📊</div><div class="nav-label">Progress</div></button>
+    <button class="nav-item" data-tab="nutrition"><div class="nav-icon">🍎</div><div class="nav-label">Nutrition</div></button>
+  </nav>
+</div>
+
+<!-- EXERCISE DETAIL (full screen) -->
+<div class="screen" id="s-detail">
+  <div class="app-header">
+    <button class="btn-icon" id="detail-back">←</button>
+    <div style="font-size:16px;font-weight:800">Exercise Guide</div>
+    <div style="width:44px"></div>
+  </div>
+  <div id="detail-body" style="flex:1;overflow-y:auto;padding-bottom:20px"></div>
+</div>
+
+<!-- COMPLETE OVERLAY -->
+<div class="complete-overlay" id="complete-overlay">
+  <div class="complete-sheet">
+    <div class="trophy">🏆</div>
+    <div class="complete-title">Session Complete!</div>
+    <div class="complete-sub" id="complete-msg">Great work today. Keep the streak going!</div>
+    <div class="complete-stats">
+      <div class="cs"><div class="cs-val" id="c-ex">6</div><div class="cs-label">Exercises</div></div>
+      <div class="cs"><div class="cs-val" id="c-cal">0</div><div class="cs-label">Calories</div></div>
+      <div class="cs"><div class="cs-val" id="c-streak">1</div><div class="cs-label">Streak 🔥</div></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;font-size:16px" id="complete-close">Back to Dashboard</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════ DATA ════════════════════════════════════
+const GOALS={lose_weight:{label:'Lose Weight',emoji:'🔥',cal:-20},gain_muscle:{label:'Gain Muscle',emoji:'💪',cal:10},posture:{label:'Posture',emoji:'🧍',cal:0},endurance:{label:'Endurance',emoji:'⚡',cal:5},flexibility:{label:'Flexibility',emoji:'🤸',cal:0},general:{label:'General Fit',emoji:'⚖️',cal:0}};
+const LEVELS={beginner:{label:'Beginner',emoji:'🌱'},intermediate:{label:'Intermediate',emoji:'🔥'},advanced:{label:'Advanced',emoji:'⚡'}};
+
+const EX={
+  push_up:{name:'Push-Up',emoji:'🤜',color:'#ffe4e6',muscles:['Chest','Triceps','Shoulders'],sets:3,reps:'10–15',rest:'60s',level:'Beginner',type:'Compound',videoId:'IODxDxX7oi4',tag:'warmup',
+    steps:['High plank — wrists under shoulders, body straight head to heels.','Lower chest by bending elbows at 45° to your torso.','Stop just before chest touches the floor. Keep tension.','Push explosively up. Inhale down, exhale up.'],
+    tips:['Core tight — no sagging or piking hips.','2–3s descent = more muscle activation.','Too hard: drop to knees. Too easy: elevate feet.']},
+  squat:{name:'Bodyweight Squat',emoji:'🦵',color:'#fef9c3',muscles:['Quads','Glutes','Hamstrings'],sets:3,reps:'15–20',rest:'60s',level:'Beginner',type:'Compound',videoId:'aclHkVaku9U',tag:'main',
+    steps:['Feet shoulder-width, toes 15° out. Arms forward for balance.','Push hips BACK first, then bend knees — sitting into a chair.','Lower until thighs parallel. Keep chest tall throughout.','Drive through heels to stand. Squeeze glutes at top.'],
+    tips:['Knees track over toes — never cave inward.','Weight on heels, not toes.','2s pause at bottom improves depth over time.']},
+  plank:{name:'Plank Hold',emoji:'💪',color:'#dcfce7',muscles:['Core','Shoulders','Glutes'],sets:3,reps:'30–60s',rest:'45s',level:'Beginner',type:'Isometric',videoId:'pSHjTRCQxIw',tag:'main',
+    steps:['Forearm plank — elbows directly under shoulders.','Straight line from head to heels — no sag or piking.','Tuck pelvis slightly to flatten your lower back.','Squeeze every muscle. Breathe slow and steady.'],
+    tips:["Never hold your breath — it breaks core stability.",'If lower back hurts: reduce time, check hip height.','Progress: add 5 seconds weekly.']},
+  deadlift:{name:'Romanian Deadlift',emoji:'🏋️',color:'#e0e7ff',muscles:['Hamstrings','Glutes','Lower Back'],sets:4,reps:'8–12',rest:'90s',level:'Intermediate',type:'Compound',videoId:'JCXUYuzwNrM',tag:'main',
+    steps:['Feet hip-width, weights in front of thighs, palms facing you.','Hinge at hips — push them BACK as torso lowers forward.','Keep weights dragging close to shins all the way down.','Deep hamstring stretch felt. Drive hips forward to return.'],
+    tips:['Neutral spine throughout — no rounding lower back.','This is a hip hinge, not a squat.','Feel it in hamstrings, not lower back.']},
+  bench_press:{name:'Dumbbell Bench Press',emoji:'🔥',color:'#ffedd5',muscles:['Chest','Triceps','Front Delts'],sets:4,reps:'8–12',rest:'90s',level:'Intermediate',type:'Compound',videoId:'VmB1G1K7v94',tag:'main',
+    steps:['Lie on bench, dumbbells at chest, elbows at 45° angle.','Plant feet flat, retract shoulder blades into the bench.','Press dumbbells up and slightly inward until near touching.','Lower with control 2–3s, feel chest stretch at bottom.'],
+    tips:['45° elbows protect shoulder joints long-term.','Slow lowering = more chest activation and growth.','Reduce weight before sacrificing form.']},
+  lunge:{name:'Walking Lunges',emoji:'🚶',color:'#f0fdf4',muscles:['Quads','Glutes','Hamstrings'],sets:3,reps:'12 each',rest:'60s',level:'Beginner',type:'Compound',videoId:'L8fvypPrzzs',tag:'main',
+    steps:['Stand tall, core braced, hands on hips.','Big controlled step forward with right foot.','Lower back knee to just above floor — both knees 90°.','Push off front foot, bring feet together, then next leg.'],
+    tips:['Torso stays upright — leaning forward is a form break.','Front knee tracks over ankle, not past toes.','Add dumbbells at sides once bodyweight feels light.']},
+  lat_pulldown:{name:'Lat Pulldown',emoji:'🦾',color:'#ede9fe',muscles:['Lats','Biceps','Rear Delts'],sets:4,reps:'10–12',rest:'75s',level:'Intermediate',type:'Compound',videoId:'CAwf7n6Luuc',tag:'main',
+    steps:['Sit, pad secured on thighs. Grip bar wider than shoulders.','Lean back 10–15° — not more. Pull bar toward upper chest.','Lead with elbows: pull them DOWN and BACK toward hips.','Return slowly 2–3s with arms fully extended.'],
+    tips:['Never pull behind the neck — cervical spine injury risk.','Think of hands as hooks. Power comes from lats.','Squeeze shoulder blades together at the bottom.']},
+  mountain_climber:{name:'Mountain Climbers',emoji:'⛰️',color:'#fce7f3',muscles:['Core','Hip Flexors','Cardio'],sets:3,reps:'30s',rest:'45s',level:'Beginner',type:'Cardio',videoId:'nmwgirgXLYM',tag:'cardio',
+    steps:['High plank — wrists under shoulders, body straight.','Drive right knee explosively toward chest.','Immediately switch — right leg back, left knee drives in.','Continue alternating rapidly. Running horizontally.'],
+    tips:['Faster = more cardio benefit. Slower = more core.','Hips level — do not bounce up and down.','Breathe rhythmically — exhale as each knee drives in.']},
+  overhead_press:{name:'Overhead Press',emoji:'🙌',color:'#f0f9ff',muscles:['Shoulders','Triceps','Core'],sets:4,reps:'8–10',rest:'90s',level:'Intermediate',type:'Compound',videoId:'2yjwXTZbrDM',tag:'main',
+    steps:['Stand, dumbbells at shoulder height, palms forward, elbows 90°.','Brace core and squeeze glutes — protects lower back.','Press directly overhead until arms fully extend.','Lower with control over 2 seconds back to start.'],
+    tips:["Do not arch lower back — it means the weight is too heavy.",'Seated press is stricter; standing is more functional.','Look straight ahead — not up — to protect neck.']},
+  cat_cow:{name:'Cat-Cow Stretch',emoji:'🐱',color:'#f0fdf4',muscles:['Spine','Core','Hip Flexors'],sets:2,reps:'10 slow',rest:'30s',level:'Beginner',type:'Mobility',videoId:'kqnua4rHVVA',tag:'cool',
+    steps:['All fours — wrists under shoulders, knees under hips.','Inhale: drop belly, lift head + tailbone (Cow).','Exhale: round spine to ceiling, tuck chin + tailbone (Cat).','Flow slowly. Each breath = one full movement.'],
+    tips:['Slow is better — articulate every single vertebra.','Try to feel each level of your spine independently.','Great as a morning wake-up or pre-workout spine prep.']}
+};
+
+const PLANS={
+  lose_weight:[
+    {name:'Full Body Burn',exs:['push_up','squat','mountain_climber','lunge','plank','cat_cow']},
+    {name:'Upper + Cardio',exs:['push_up','overhead_press','mountain_climber','lat_pulldown','plank','cat_cow']},
+    {name:'Active Recovery',exs:['cat_cow','plank','lunge','mountain_climber','squat','push_up']},
+    {name:'Lower + Core',exs:['squat','lunge','deadlift','plank','mountain_climber','cat_cow']},
+    {name:'Full Body HIIT',exs:['push_up','squat','mountain_climber','lunge','overhead_press','plank']},
+  ],
+  gain_muscle:[
+    {name:'Push Day',exs:['bench_press','overhead_press','push_up','plank','mountain_climber','cat_cow']},
+    {name:'Pull Day',exs:['lat_pulldown','deadlift','mountain_climber','plank','cat_cow','lunge']},
+    {name:'Rest & Mobility',exs:['cat_cow','plank','lunge','mountain_climber','squat','push_up']},
+    {name:'Legs',exs:['squat','lunge','deadlift','plank','cat_cow','mountain_climber']},
+    {name:'Push Day II',exs:['bench_press','overhead_press','push_up','plank','mountain_climber','cat_cow']},
+    {name:'Pull Day II',exs:['lat_pulldown','deadlift','plank','cat_cow','mountain_climber','lunge']},
+  ],
+  posture:[
+    {name:'Upper Back Focus',exs:['lat_pulldown','cat_cow','plank','overhead_press','mountain_climber','push_up']},
+    {name:'Core & Spine',exs:['plank','cat_cow','mountain_climber','deadlift','lunge','squat']},
+    {name:'Active Recovery',exs:['cat_cow','plank','lunge','mountain_climber','squat','push_up']},
+    {name:'Lower Body & Glutes',exs:['squat','lunge','deadlift','plank','cat_cow','mountain_climber']},
+    {name:'Full Mobility',exs:['cat_cow','plank','lunge','push_up','mountain_climber','squat']},
+  ],
+  endurance:[
+    {name:'Cardio Circuit',exs:['mountain_climber','squat','push_up','lunge','plank','cat_cow']},
+    {name:'Strength + Cardio',exs:['deadlift','lat_pulldown','mountain_climber','plank','lunge','cat_cow']},
+    {name:'Recovery',exs:['cat_cow','plank','mountain_climber','lunge','squat','push_up']},
+    {name:'HIIT Circuit',exs:['mountain_climber','squat','push_up','lunge','plank','overhead_press']},
+    {name:'Full Body',exs:['push_up','squat','mountain_climber','lunge','plank','cat_cow']},
+  ],
+  flexibility:[
+    {name:'Upper Mobility',exs:['cat_cow','plank','push_up','overhead_press','lat_pulldown','mountain_climber']},
+    {name:'Full Body Stretch',exs:['cat_cow','plank','lunge','squat','mountain_climber','push_up']},
+    {name:'Rest',exs:['cat_cow','plank','mountain_climber','lunge','squat','push_up']},
+    {name:'Lower Mobility',exs:['lunge','squat','deadlift','cat_cow','plank','mountain_climber']},
+    {name:'Flow',exs:['cat_cow','plank','push_up','squat','lunge','mountain_climber']},
+  ],
+  general:[
+    {name:'Full Body A',exs:['push_up','squat','plank','lunge','mountain_climber','cat_cow']},
+    {name:'Full Body B',exs:['bench_press','deadlift','lat_pulldown','plank','mountain_climber','cat_cow']},
+    {name:'Rest & Mobility',exs:['cat_cow','plank','mountain_climber','lunge','squat','push_up']},
+    {name:'Full Body C',exs:['overhead_press','squat','lunge','plank','mountain_climber','cat_cow']},
+    {name:'Active Recovery',exs:['cat_cow','plank','lunge','mountain_climber','squat','push_up']},
+  ]
+};
+
+// ── DIET-AWARE MEAL DATABASE ─────────────────────────────────────────────────
+// Each meal has multiple options per diet type + recipe short + order link
+const MEALS_DB = {
+  breakfast: [
+    {
+      name:'High-Protein Breakfast',
+      options:{
+        nonveg:{name:'Masala Egg Omelette + Toast',desc:'4 eggs, 2 slices whole wheat bread, banana. Best morning muscle starter.',cal:600,p:38,c:55,f:18,recipe:'OkWFdHcY5aA',zomato:'https://www.zomato.com/bangalore/search?q=egg+omelette+breakfast',swiggy:'https://www.swiggy.com/search?query=egg+omelette+breakfast'},
+        egg:{name:'Masala Egg Omelette + Toast',desc:'4 eggs, 2 slices whole wheat bread, banana. Best morning muscle starter.',cal:600,p:38,c:55,f:18,recipe:'OkWFdHcY5aA',zomato:'https://www.zomato.com/bangalore/search?q=egg+omelette+breakfast',swiggy:'https://www.swiggy.com/search?query=egg+omelette+breakfast'},
+        veg:{name:'Paneer Bhurji + Multigrain Toast',desc:'200g paneer bhurji with bell peppers, 2 multigrain toast slices. High protein vegetarian.',cal:520,p:32,c:42,f:20,recipe:'nXLo9p6HZYU',zomato:'https://www.zomato.com/bangalore/search?q=paneer+bhurji+breakfast',swiggy:'https://www.swiggy.com/search?query=paneer+bhurji'},
+        vegan:{name:'Tofu Scramble + Oats',desc:'150g firm tofu scrambled with turmeric & veggies, 50g oats with almond milk.',cal:480,p:28,c:52,f:14,recipe:'YBq_NfNnLiU',zomato:'https://www.zomato.com/bangalore/search?q=tofu+scramble',swiggy:'https://www.swiggy.com/search?query=tofu+breakfast'},
+        jain:{name:'Makhana + Dry Fruit Smoothie',desc:'50g roasted makhana, banana smoothie with almonds, dates. No root vegetables.',cal:420,p:16,c:65,f:12,recipe:'HSJFP9BKXPA',zomato:'https://www.zomato.com/bangalore/search?q=jain+breakfast',swiggy:'https://www.swiggy.com/search?query=jain+breakfast'}
+      }
+    }
+  ],
+  lunch: [
+    {
+      name:'Power Lunch',
+      options:{
+        nonveg:{name:'Grilled Chicken + Brown Rice Dal',desc:'180g grilled chicken breast, 1 cup brown rice, moong dal tadka, salad.',cal:720,p:52,c:72,f:14,recipe:'dQw4w9WgXcQ',zomato:'https://www.zomato.com/bangalore/search?q=grilled+chicken+rice',swiggy:'https://www.swiggy.com/search?query=grilled+chicken+rice+bowl'},
+        egg:{name:'Egg Curry + Brown Rice',desc:'3 boiled eggs in tomato-onion gravy, 1 cup brown rice, salad on side.',cal:600,p:38,c:68,f:16,recipe:'aB3j9LmKpQs',zomato:'https://www.zomato.com/bangalore/search?q=egg+curry+rice',swiggy:'https://www.swiggy.com/search?query=egg+curry+rice'},
+        veg:{name:'Rajma Chawal + Dahi',desc:'1 cup rajma curry, 1 cup brown rice, 1 cup curd. Classic high-protein Indian thali.',cal:620,p:28,c:90,f:10,recipe:'GpKkQPxmFak',zomato:'https://www.zomato.com/bangalore/search?q=rajma+chawal',swiggy:'https://www.swiggy.com/search?query=rajma+chawal'},
+        vegan:{name:'Chickpea Curry + Quinoa',desc:'1 cup chana masala, 80g quinoa, cucumber raita (coconut curd).',cal:580,p:26,c:85,f:10,recipe:'3VBgTwh7xRc',zomato:'https://www.zomato.com/bangalore/search?q=chana+masala+quinoa',swiggy:'https://www.swiggy.com/search?query=chana+masala+bowl'},
+        jain:{name:'Paneer + Jowar Roti + Lauki Sabzi',desc:'150g paneer sabzi, 2 jowar rotis, bottle gourd subzi. No onion/garlic/root veg.',cal:540,p:30,c:56,f:18,recipe:'7KmNxPqLvRt',zomato:'https://www.zomato.com/bangalore/search?q=jain+thali',swiggy:'https://www.swiggy.com/search?query=jain+thali'}
+      }
+    }
+  ],
+  snack: [
+    {
+      name:'Protein Snack',
+      options:{
+        nonveg:{name:'Chicken Tikka Skewers',desc:'100g chicken tikka (grilled, not fried), cucumber & mint chutney.',cal:250,p:28,c:8,f:10,recipe:'vPmS1GsXlpA',zomato:'https://www.zomato.com/bangalore/search?q=chicken+tikka',swiggy:'https://www.swiggy.com/search?query=chicken+tikka'},
+        egg:{name:'Boiled Eggs + Sprouts Chaat',desc:'2 boiled eggs, 1 cup sprouted moong chaat with lemon.',cal:220,p:22,c:16,f:8,recipe:'k9pXqLmNrTs',zomato:'https://www.zomato.com/bangalore/search?q=sprouts+chaat',swiggy:'https://www.swiggy.com/search?query=sprouts+chaat'},
+        veg:{name:'Greek Yogurt + Mixed Nuts',desc:'150g low-fat Greek yogurt, 25g mixed nuts (almonds, walnuts).',cal:230,p:18,c:14,f:12,recipe:'mN9pQrStUvW',zomato:'https://www.zomato.com/bangalore/search?q=greek+yogurt',swiggy:'https://www.swiggy.com/search?query=yogurt+parfait'},
+        vegan:{name:'Roasted Chana + Coconut Water',desc:'50g dry roasted chana (no oil), 1 fresh coconut water. Electrolytes + protein.',cal:200,p:14,c:28,f:4,recipe:'xYzAbCdEfGh',zomato:'https://www.zomato.com/bangalore/search?q=roasted+chana',swiggy:'https://www.swiggy.com/search?query=roasted+chana'},
+        jain:{name:'Makhana Kheer + Almonds',desc:'Roasted makhana in warm almond milk, 10 soaked almonds, dates.',cal:260,p:10,c:36,f:10,recipe:'HiJkLmNoPqR',zomato:'https://www.zomato.com/bangalore/search?q=makhana',swiggy:'https://www.swiggy.com/search?query=makhana+snack'}
+      }
+    }
+  ],
+  dinner: [
+    {
+      name:'Recovery Dinner',
+      options:{
+        nonveg:{name:'Baked Salmon + Sweet Potato',desc:'180g baked salmon (omega-3), 150g sweet potato, steamed broccoli & spinach.',cal:500,p:42,c:40,f:16,recipe:'StUvWxYzAbC',zomato:'https://www.zomato.com/bangalore/search?q=baked+salmon',swiggy:'https://www.swiggy.com/search?query=salmon+dinner'},
+        egg:{name:'Egg Fried Brown Rice',desc:'2 eggs fried with brown rice, veggies, soy sauce. Light and protein-rich.',cal:460,p:28,c:55,f:12,recipe:'DeFgHiJkLmN',zomato:'https://www.zomato.com/bangalore/search?q=egg+fried+rice',swiggy:'https://www.swiggy.com/search?query=egg+fried+rice'},
+        veg:{name:'Palak Paneer + Roti + Dahi',desc:'150g palak paneer (iron + calcium), 2 whole wheat rotis, 1 cup curd.',cal:540,p:30,c:52,f:20,recipe:'OpQrStUvWxY',zomato:'https://www.zomato.com/bangalore/search?q=palak+paneer',swiggy:'https://www.swiggy.com/search?query=palak+paneer+roti'},
+        vegan:{name:'Moong Dal Khichdi + Salad',desc:'Moong dal & brown rice khichdi, large salad with lemon-olive oil dressing.',cal:420,p:20,c:62,f:8,recipe:'ZAbCdEfGhIj',zomato:'https://www.zomato.com/bangalore/search?q=khichdi+vegan',swiggy:'https://www.swiggy.com/search?query=khichdi'},
+        jain:{name:'Paneer + Lauki Sabzi + Phulka',desc:'No onion/garlic paneer sabzi, bottle gourd subzi, 2 phulka rotis.',cal:490,p:26,c:50,f:18,recipe:'KlMnOpQrStU',zomato:'https://www.zomato.com/bangalore/search?q=jain+dinner',swiggy:'https://www.swiggy.com/search?query=jain+dinner'}
+      }
+    }
+  ],
+  post_workout: [
+    {
+      name:'Post-Workout Fuel',
+      options:{
+        nonveg:{name:'Whey Protein + Banana',desc:'1 scoop whey protein (30g), 1 large banana. Consume within 30 mins.',cal:350,p:28,c:42,f:3,recipe:'VwXyZaBcDeF',zomato:'https://www.zomato.com/bangalore/search?q=protein+shake',swiggy:'https://www.swiggy.com/search?query=protein+shake'},
+        egg:{name:'Egg White Shake + Banana',desc:'4 egg whites blended with banana, 1 tsp peanut butter, milk.',cal:320,p:30,c:38,f:6,recipe:'GhIjKlMnOpQ',zomato:'https://www.zomato.com/bangalore/search?q=protein+shake',swiggy:'https://www.swiggy.com/search?query=protein+shake'},
+        veg:{name:'Whey/Soy Protein + Banana',desc:'1 scoop whey or soy protein, 1 banana, glass of milk.',cal:340,p:26,c:44,f:4,recipe:'RsTuVwXyZaB',zomato:'https://www.zomato.com/bangalore/search?q=protein+shake',swiggy:'https://www.swiggy.com/search?query=protein+shake'},
+        vegan:{name:'Pea Protein + Banana Smoothie',desc:'1 scoop pea protein, 1 banana, oat milk, 1 tsp chia seeds.',cal:310,p:24,c:40,f:5,recipe:'CdEfGhIjKlM',zomato:'https://www.zomato.com/bangalore/search?q=vegan+protein+shake',swiggy:'https://www.swiggy.com/search?query=vegan+smoothie'},
+        jain:{name:'Makhana Protein Shake',desc:'Makhana powder, banana, almond milk, dates. Natural plant protein.',cal:290,p:14,c:48,f:6,recipe:'NoPqRsTuVwX',zomato:'https://www.zomato.com/bangalore/search?q=jain+smoothie',swiggy:'https://www.swiggy.com/search?query=jain+smoothie'}
+      }
+    }
+  ]
+};
+
+const DIET_TIPS = {
+  nonveg:['Eat at least 3 servings of fish per week for omega-3s.','Choose grilled/baked over fried for the same protein with less fat.','Chicken breast is king — 31g protein per 100g with only 3.6g fat.'],
+  egg:['Eggs are a complete protein — all 9 essential amino acids.','Whole eggs vs whites: whole = more nutrients, whites = less calories.','Hard boil a batch on Sunday for the whole week.'],
+  veg:['Combine dal + rice for complete protein (all amino acids).','Paneer + Greek yogurt are your best high-protein vegetarian friends.','Whey protein supplement fills vegetarian protein gaps easily.'],
+  vegan:['Combine legumes + grains at each meal for complete proteins.','B12 supplement is essential for vegans — do not skip it.','Lentils, tofu, tempeh, and edamame are protein powerhouses.'],
+  jain:['Makhana (fox nuts) is an excellent high-protein jain-friendly snack.','Chana dal + amaranth is a complete protein combination.','Avoid eating after sunset — Jain fasting aligns with intermittent fasting research.']
+};
+
+const GENERAL_NUT_TIPS = {
+  lose_weight:['300–500 kcal deficit max — more slows metabolism.','Drink 3–4L water daily — hunger is often thirst.','Avoid liquid calories: juice, soda, sweet chai.'],
+  gain_muscle:['200–300 kcal surplus only — more becomes fat.','Hit protein target first; fill rest with carbs.','Never skip the post-workout nutrition window (30–60 mins).'],
+  posture:['Omega-3s (fish, walnuts, flaxseed) reduce joint inflammation.','Calcium + Vitamin D daily — get sunlight.','Magnesium at night helps muscle relaxation and sleep.'],
+  endurance:['Carbs are your fuel — embrace them.','Electrolytes: pinch of salt + lemon in water.','Beetroot juice proven to boost aerobic endurance.'],
+  flexibility:['Magnesium is the #1 mineral for muscle relaxation.','Dehydration = stiffer muscles. Drink more water.','Pineapple + papaya enzymes reduce muscle soreness.'],
+  general:['80/20 rule: eat clean 80% and enjoy 20%.','Use ghee in small amounts — better than refined oil.','Sleep 7–9 hours — GH peaks during deep sleep.']
+};
+
+// ════════════════════════════════════ STATE ═══════════════════════════════════
+let USER = null;
+let PROGRESS = { log:[], streak:0, totalCal:0, totalEx:0, completedDays:[] };
+let TIMER = { sec:30, total:30, running:false, interval:null };
+let activeDay = 0;
+let completedExercises = new Set();
+
+// ════════════════════════════════════ STORAGE ═════════════════════════════════
+function save() {
+  try {
+    localStorage.setItem('ff_user', JSON.stringify(USER));
+    localStorage.setItem('ff_progress', JSON.stringify(PROGRESS));
+    localStorage.setItem('ff_day', activeDay);
+    localStorage.setItem('ff_completed_exs', JSON.stringify([...completedExercises]));
+  } catch(e){}
+}
+function load() {
+  try {
+    const u = localStorage.getItem('ff_user');
+    const p = localStorage.getItem('ff_progress');
+    const d = localStorage.getItem('ff_day');
+    const ce = localStorage.getItem('ff_completed_exs');
+    if (u) USER = JSON.parse(u);
+    if (p) PROGRESS = JSON.parse(p);
+    if (d) activeDay = parseInt(d) || 0;
+    if (ce) completedExercises = new Set(JSON.parse(ce));
+  } catch(e){}
+}
+
+// ════════════════════════════════════ ONBOARDING ══════════════════════════════
+const STEPS = ['name','sex','body','goal','level','days','diet'];
+let stepIdx = 0;
+let tempUser = {name:'',sex:'',goal:'',level:'',days:'',diet:'',age:25,weight:70,height:170};
+
+function renderOnboardStep() {
+  const step = STEPS[stepIdx];
+  const total = STEPS.length;
+  const pct = Math.round((stepIdx/total)*100);
+  const wrap = document.getElementById('onboard-steps');
+
+  // progress dots
+  const dots = STEPS.map((_,i)=>`<div class="onboard-dot ${i<stepIdx?'done':i===stepIdx?'active':''}"></div>`).join('');
+
+  let content = '';
+  if (step==='name') {
+    content = `
+      <div class="step-tag">👋 Welcome</div>
+      <div class="step-heading">What's your name?</div>
+      <div class="step-sub">We'll personalize everything for you.</div>
+      <input class="name-input" id="name-inp" placeholder="Enter your name..." value="${tempUser.name}" maxlength="30" autocomplete="off">
+      <div class="nav-row">
+        <button class="btn btn-primary" style="flex:1;font-size:16px" id="step-next">Let's Go →</button>
+      </div>`;
+  } else if (step==='sex') {
+    content = `
+      <div class="step-tag">Step 2 of ${total}</div>
+      <div class="step-heading">I am a…</div>
+      <div class="step-sub">Helps tailor nutrition and workout splits.</div>
+      <div class="choice-grid cols2">
+        <div class="choice-card ${tempUser.sex==='male'?'selected':''}" data-key="sex" data-val="male"><div class="choice-icon">♂️</div><div class="choice-name">Male</div></div>
+        <div class="choice-card ${tempUser.sex==='female'?'selected':''}" data-key="sex" data-val="female"><div class="choice-icon">♀️</div><div class="choice-name">Female</div></div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" id="step-back">← Back</button>
+        <button class="btn btn-primary" style="flex:1" data-require="sex" id="step-next">Next →</button>
+      </div>`;
+  } else if (step==='body') {
+    content = `
+      <div class="step-tag">Step 3 of ${total}</div>
+      <div class="step-heading">Your body stats</div>
+      <div class="step-sub">Used to calculate your exact calorie & macro targets.</div>
+      <div class="slider-wrap">
+        <div class="slider-top"><span class="slider-key">Age</span><span><span class="slider-val" id="v-age">${tempUser.age}</span><span class="slider-unit">yrs</span></span></div>
+        <input type="range" min="15" max="70" value="${tempUser.age}" id="sl-age">
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-top"><span class="slider-key">Height</span><span><span class="slider-val" id="v-height">${tempUser.height}</span><span class="slider-unit">cm</span></span></div>
+        <input type="range" min="140" max="210" value="${tempUser.height}" id="sl-height">
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-top"><span class="slider-key">Weight</span><span><span class="slider-val" id="v-weight">${tempUser.weight}</span><span class="slider-unit">kg</span></span></div>
+        <input type="range" min="40" max="150" value="${tempUser.weight}" id="sl-weight">
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" id="step-back">← Back</button>
+        <button class="btn btn-primary" style="flex:1" id="step-next">Next →</button>
+      </div>`;
+  } else if (step==='goal') {
+    content = `
+      <div class="step-tag">Step 4 of ${total}</div>
+      <div class="step-heading">Your main goal</div>
+      <div class="step-sub">This shapes your daily workout split.</div>
+      <div class="choice-grid">
+        ${Object.entries(GOALS).map(([k,v])=>`<div class="choice-card ${tempUser.goal===k?'selected':''}" data-key="goal" data-val="${k}"><div class="choice-row"><div class="choice-icon">${v.emoji}</div><div><div class="choice-name">${v.label}</div></div></div></div>`).join('')}
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" id="step-back">← Back</button>
+        <button class="btn btn-primary" style="flex:1" data-require="goal" id="step-next">Next →</button>
+      </div>`;
+  } else if (step==='level') {
+    content = `
+      <div class="step-tag">Step 5 of ${total}</div>
+      <div class="step-heading">Your level</div>
+      <div class="step-sub">We scale intensity and volume to match you.</div>
+      <div class="choice-grid">
+        ${Object.entries(LEVELS).map(([k,v])=>`<div class="choice-card ${tempUser.level===k?'selected':''}" data-key="level" data-val="${k}"><div class="choice-icon">${v.emoji}</div><div class="choice-name">${v.label}</div></div>`).join('')}
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" id="step-back">← Back</button>
+        <button class="btn btn-primary" style="flex:1" data-require="level" id="step-next">Next →</button>
+      </div>`;
+  } else if (step==='diet') {
+    content = `
+      <div class="step-tag">Step 7 of ${total}</div>
+      <div class="step-heading">Food preference</div>
+      <div class="step-sub">We'll match meals and recipes to what you eat.</div>
+      <div class="choice-grid">
+        <div class="choice-card ${tempUser.diet==='nonveg'?'selected':''}" data-key="diet" data-val="nonveg"><div class="choice-row"><div class="choice-icon">🍗</div><div><div class="choice-name">Non-Vegetarian</div><div class="choice-desc">Chicken, fish, eggs, dairy</div></div></div></div>
+        <div class="choice-card ${tempUser.diet==='egg'?'selected':''}" data-key="diet" data-val="egg"><div class="choice-row"><div class="choice-icon">🥚</div><div><div class="choice-name">Eggetarian</div><div class="choice-desc">Eggs + dairy, no meat/fish</div></div></div></div>
+        <div class="choice-card ${tempUser.diet==='veg'?'selected':''}" data-key="diet" data-val="veg"><div class="choice-row"><div class="choice-icon">🥗</div><div><div class="choice-name">Vegetarian</div><div class="choice-desc">Dairy & eggs OK, no meat</div></div></div></div>
+        <div class="choice-card ${tempUser.diet==='vegan'?'selected':''}" data-key="diet" data-val="vegan"><div class="choice-row"><div class="choice-icon">🌱</div><div><div class="choice-name">Vegan</div><div class="choice-desc">Plant-based only</div></div></div></div>
+        <div class="choice-card ${tempUser.diet==='jain'?'selected':''}" data-key="diet" data-val="jain"><div class="choice-row"><div class="choice-icon">🙏</div><div><div class="choice-name">Jain</div><div class="choice-desc">No root vegetables, no meat</div></div></div></div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" id="step-back">← Back</button>
+        <button class="btn btn-primary" style="flex:1" data-require="diet" id="step-next">Build My Plan 🚀</button>
+      </div>`;
+    content = `
+      <div class="step-tag">Step 6 of ${total}</div>
+      <div class="step-heading">Days per week</div>
+      <div class="step-sub">How many days can you commit to training?</div>
+      <div class="choice-grid cols2">
+        ${[3,4,5,6].map(d=>`<div class="choice-card ${tempUser.days==d?'selected':''}" data-key="days" data-val="${d}"><div class="choice-icon">${['📅','📆','🗓️','💯'][d-3]}</div><div class="choice-name">${d} Days</div><div class="choice-desc">${['Great for beginners','Good balance','Serious','Advanced only'][d-3]}</div></div>`).join('')}
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" id="step-back">← Back</button>
+        <button class="btn btn-primary" style="flex:1" data-require="days" id="step-next">Next →</button>
+      </div>`;
+  }
+
+  wrap.innerHTML = `<div class="onboard-progress">${dots}</div>${content}`;
+
+  // attach slider listeners
+  if (step==='body') {
+    document.getElementById('sl-age').addEventListener('input',function(){tempUser.age=+this.value;document.getElementById('v-age').textContent=this.value});
+    document.getElementById('sl-height').addEventListener('input',function(){tempUser.height=+this.value;document.getElementById('v-height').textContent=this.value});
+    document.getElementById('sl-weight').addEventListener('input',function(){tempUser.weight=+this.value;document.getElementById('v-weight').textContent=this.value});
+  }
+  if (step==='name') {
+    const inp = document.getElementById('name-inp');
+    inp.addEventListener('input',()=>tempUser.name=inp.value.trim());
+    inp.focus();
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('step-next').click()});
+  }
+
+  document.getElementById('step-next')?.addEventListener('click', () => {
+    const req = document.getElementById('step-next').dataset.require;
+    if (step==='name') {
+      if (!tempUser.name) { showToast('Please enter your name 😊'); return; }
+    }
+    if (req && !tempUser[req]) {
+      document.querySelectorAll('.choice-card').forEach(c=>{c.style.outline='2px solid #ef4444';setTimeout(()=>c.style.outline='',600)});
+      return;
+    }
+    if (stepIdx < STEPS.length-1) { stepIdx++; renderOnboardStep(); }
+    else finishOnboard();
+  });
+  document.getElementById('step-back')?.addEventListener('click', () => {
+    if (stepIdx > 0) { stepIdx--; renderOnboardStep(); }
+  });
+}
+
+function finishOnboard() {
+  USER = { ...tempUser };
+  PROGRESS = { log:[], streak:0, totalCal:0, totalEx:0, completedDays:[] };
+  activeDay = 0;
+  completedExercises = new Set();
+  save();
+  launchApp();
+}
+
+// ════════════════════════════════════ APP ════════════════════════════════════
+function launchApp() {
+  showScreen('s-app');
+  document.getElementById('app-avatar').textContent = USER.name.charAt(0).toUpperCase();
+  document.getElementById('streak-num').textContent = PROGRESS.streak + ' day' + (PROGRESS.streak!==1?'s':'');
+  renderHome();
+  renderNutrition();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  ['home','timer','progress','nutrition'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display = t===name?'block':'none';
+  });
+  if (name==='progress') renderProgress();
+}
+
+// ════════════════════════════════════ HOME ════════════════════════════════════
+function renderHome() {
+  const g = USER.goal||'general';
+  const plan = PLANS[g];
+  const todayPlan = plan[activeDay % plan.length];
+  const now = new Date();
+  const hour = now.getHours();
+  const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const cal = Math.round(USER.weight * 5.5);
+
+  // week strip - 7 days
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today = now.getDay();
+  let weekHtml = '';
+  for (let i=0; i<7; i++) {
+    const diff = i - today;
+    const d = new Date(now); d.setDate(d.getDate()+diff);
+    const dateNum = d.getDate();
+    const isToday = diff===0;
+    const isDone = PROGRESS.completedDays && PROGRESS.completedDays.includes(d.toDateString());
+    weekHtml += `<div class="day-chip ${isToday?'today':''} ${isDone?'done':''}">
+      <div class="day-name">${days[d.getDay()].slice(0,3)}</div>
+      <div class="day-num">${dateNum}</div>
+      <div class="day-dot"></div>
+    </div>`;
+  }
+
+  // exercise list
+  const exHtml = todayPlan.exs.map((k,i)=>{
+    const ex = EX[k]; if(!ex) return '';
+    const done = completedExercises.has(k);
+    const tagClass = {warmup:'tag-warmup',main:'tag-main',cool:'tag-cool',cardio:'tag-cardio'}[ex.tag]||'tag-main';
+    const tagLabel = {warmup:'Warm-Up',main:'Main',cool:'Cool Down',cardio:'Cardio'}[ex.tag]||'Main';
+    return `<div class="ex-card ${done?'completed':''}" data-ex="${k}" style="animation-delay:${i*0.06}s;animation:slideUp 0.4s ${i*0.06}s both cubic-bezier(0.34,1.56,0.64,1)">
+      <div class="ex-emoji-wrap" style="background:${ex.color}"><span style="font-size:26px">${ex.emoji}</span></div>
+      <div class="ex-card-body">
+        <div class="ex-card-name">${ex.name}</div>
+        <div class="ex-card-meta">
+          <span>📊 ${ex.sets} sets</span>
+          <span>🔁 ${ex.reps}</span>
+          <span>⏱ ${ex.rest}</span>
+        </div>
+        <div class="ex-card-tags"><span class="ex-tag ${tagClass}">${tagLabel}</span></div>
+      </div>
+      <div style="color:${done?'var(--primary)':'var(--text3)'};font-size:20px;flex-shrink:0">${done?'✓':'›'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tab-home').innerHTML = `
+    <div class="hero-card">
+      <div class="hero-greeting">${greet},</div>
+      <div class="hero-name">${USER.name} 👋</div>
+      <div class="hero-meta">
+        <div class="hero-stat"><div class="hero-stat-val">${USER.weight}kg</div><div class="hero-stat-label">Weight</div></div>
+        <div class="hero-stat"><div class="hero-stat-val">${LEVELS[USER.level]?.label||'Beginner'}</div><div class="hero-stat-label">Level</div></div>
+        <div class="hero-stat"><div class="hero-stat-val">${GOALS[USER.goal]?.label||'General'}</div><div class="hero-stat-label">Goal</div></div>
+      </div>
+      <button class="start-workout-btn" id="scroll-to-workout">💪 Today's Workout ↓</button>
+    </div>
+
+    <div style="padding:0 20px;margin-bottom:12px">
+      <div class="section-title" style="margin-bottom:4px">This Week</div>
+    </div>
+    <div class="week-strip">${weekHtml}</div>
+
+    <div class="section-header">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Day ${activeDay+1} of ${plan.length}</div>
+        <div class="section-title">${todayPlan.name}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:var(--text2);font-family:var(--font2)">${todayPlan.exs.length} exercises</div>
+        <div style="font-size:12px;color:var(--text2);font-family:var(--font2)">~${cal} cal</div>
+      </div>
+    </div>
+    <div class="workout-list" id="workout-list">${exHtml}</div>
+    <div style="padding:16px 20px 8px">
+      <button class="btn btn-primary" style="width:100%;font-size:16px" id="complete-workout-btn">✅ Complete Workout</button>
+    </div>
+    <div style="height:8px"></div>`;
+
+  document.getElementById('scroll-to-workout')?.addEventListener('click',()=>{
+    document.getElementById('workout-list')?.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  document.getElementById('complete-workout-btn')?.addEventListener('click', completeWorkout);
+}
+
+// ════════════════════════════════════ DETAIL ══════════════════════════════════
+function showDetail(k) {
+  const ex = EX[k];
+  const tagClass = {warmup:'tag-warmup',main:'tag-main',cool:'tag-cool',cardio:'tag-cardio'}[ex.tag]||'tag-main';
+  const tagLabel = {warmup:'Warm-Up',main:'Main Set',cool:'Cool Down',cardio:'Cardio'}[ex.tag]||'Main Set';
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-hero" style="background:${ex.color}">
+      <div class="detail-hero-emoji">${ex.emoji}</div>
+    </div>
+    <div class="detail-info">
+      <div class="detail-name">${ex.name}</div>
+      <div class="detail-badges">
+        <span class="detail-badge ${tagClass}">${tagLabel}</span>
+        <span class="detail-badge" style="background:#f3f4f6;color:#374151">${ex.type}</span>
+        <span class="detail-badge" style="background:#ede9fe;color:#7c3aed">${ex.level}</span>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-box"><div class="metric-val">${ex.sets}</div><div class="metric-label">Sets</div></div>
+        <div class="metric-box"><div class="metric-val">${ex.reps}</div><div class="metric-label">Reps</div></div>
+        <div class="metric-box"><div class="metric-val">${ex.rest}</div><div class="metric-label">Rest</div></div>
+      </div>
+      <a href="https://www.youtube.com/watch?v=${ex.videoId}" target="_blank" class="video-btn">
+        <div class="play-circle"><div class="play-tri"></div></div>
+        <div class="video-btn-text">
+          <div class="video-btn-title">${ex.name} — Tutorial Video</div>
+          <div class="video-btn-sub">Tap to watch on YouTube →</div>
+        </div>
+      </a>
+      <div class="steps-section">
+        <div class="steps-heading">How to do it</div>
+        ${ex.steps.map((s,i)=>`<div class="step-row"><div class="step-badge">${i+1}</div><div class="step-text">${s}</div></div>`).join('')}
+      </div>
+      <div class="tips-box">
+        <div class="tips-heading">💡 Pro tips & form cues</div>
+        ${ex.tips.map(t=>`<div class="tip-row">${t}</div>`).join('')}
+      </div>
+      <div style="display:flex;gap:10px;padding:0 0 8px">
+        <button class="btn btn-primary" style="flex:1;font-size:15px" id="mark-done-btn">Mark as Done ✓</button>
+        <button class="btn" style="background:var(--bg);color:var(--text);padding:16px 20px;border-radius:50px;font-size:22px" onclick="switchTab('timer');showScreen('s-app')">⏱</button>
+      </div>
+    </div>`;
+
+  document.getElementById('mark-done-btn').addEventListener('click',()=>{
+    completedExercises.add(k);
+    save();
+    showToast(`${ex.name} marked as done! 💪`);
+    showScreen('s-app');
+    renderHome();
+  });
+  showScreen('s-detail');
+}
+
+// ════════════════════════════════════ COMPLETE ════════════════════════════════
+function completeWorkout() {
+  const today = new Date().toDateString();
+  if (PROGRESS.completedDays && PROGRESS.completedDays.includes(today)) {
+    showToast('Already logged today! Come back tomorrow 💪'); return;
+  }
+  const cal = Math.round(USER.weight * 5.5);
+  const plan = PLANS[USER.goal||'general'];
+  const todayPlan = plan[activeDay % plan.length];
+
+  if (!PROGRESS.completedDays) PROGRESS.completedDays = [];
+  PROGRESS.completedDays.push(today);
+  PROGRESS.log.unshift({ date:new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'}), workout:todayPlan.name, day:activeDay+1, exercises:todayPlan.exs.length, cal });
+  PROGRESS.totalCal += cal;
+  PROGRESS.totalEx += todayPlan.exs.length;
+  PROGRESS.streak++;
+  activeDay++;
+  completedExercises = new Set();
+
+  document.getElementById('streak-num').textContent = PROGRESS.streak + ' day' + (PROGRESS.streak!==1?'s':'');
+  document.getElementById('c-ex').textContent = todayPlan.exs.length;
+  document.getElementById('c-cal').textContent = cal;
+  document.getElementById('c-streak').textContent = PROGRESS.streak;
+  document.getElementById('complete-msg').textContent = PROGRESS.streak===1 ? 'First workout done! The journey begins.' : `${PROGRESS.streak} days strong, ${USER.name}! Keep going!`;
+
+  save();
+  document.getElementById('complete-overlay').classList.add('show');
+}
+
+// ════════════════════════════════════ PROGRESS ════════════════════════════════
+function renderProgress() {
+  const calTrend = [0,0,0,0,0,0,0];
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const now = new Date();
+  (PROGRESS.log||[]).slice(0,7).forEach((l,i)=>{ if(i<7) calTrend[6-i]=l.cal||0; });
+  const maxCal = Math.max(...calTrend,1);
+  const bars = calTrend.map((c,i)=>`<div class="bar ${c>0?'active':'inactive'}" style="height:${Math.max(8,c/maxCal*80)}px"></div>`).join('');
+  const barLabels = days.map(d=>`<div class="bar-label">${d}</div>`).join('');
+
+  // calendar
+  const yr=now.getFullYear(),mo=now.getMonth();
+  const first=new Date(yr,mo,1).getDay(), dim=new Date(yr,mo+1,0).getDate();
+  const calDays=['S','M','T','W','T','F','S'].map(d=>`<div class="cal-header-cell">${d}</div>`).join('');
+  let calCells = '';
+  for(let i=0;i<first;i++) calCells+=`<div class="cal-cell empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const dateStr=new Date(yr,mo,d).toDateString();
+    const isToday=d===now.getDate();
+    const isDone=PROGRESS.completedDays?.includes(dateStr);
+    calCells+=`<div class="cal-cell ${isToday?'today':''} ${isDone?'done':''}">${d}</div>`;
+  }
+
+  const logHtml = (PROGRESS.log||[]).length ? (PROGRESS.log||[]).map(e=>`
+    <div class="log-item">
+      <div><div class="log-name">Day ${e.day||'?'} — ${e.workout||'Workout'}</div><div class="log-date">${e.date}</div></div>
+      <div class="log-cal">${e.cal} kcal</div>
+    </div>`).join('') : `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No workouts logged yet.<br>Complete your first session!</div></div>`;
+
+  document.getElementById('tab-progress').innerHTML = `
+    <div class="progress-hero">
+      <div class="progress-hero-title">Current Streak</div>
+      <div class="progress-hero-val">🔥 ${PROGRESS.streak} ${PROGRESS.streak===1?'Day':'Days'}</div>
+      <div class="progress-hero-sub">Keep going, ${USER?.name||'Champion'}!</div>
+    </div>
+    <div class="progress-stats">
+      <div class="p-stat"><div class="p-stat-val">${PROGRESS.log?.length||0}</div><div class="p-stat-label">Workouts</div></div>
+      <div class="p-stat"><div class="p-stat-val">${PROGRESS.totalCal||0}</div><div class="p-stat-label">Calories</div></div>
+      <div class="p-stat"><div class="p-stat-val">${PROGRESS.totalEx||0}</div><div class="p-stat-label">Exercises</div></div>
+    </div>
+    <div class="cal-wrap">
+      <div class="section-title" style="margin-bottom:12px">This Month</div>
+      <div class="cal-grid">${calDays}${calCells}</div>
+    </div>
+    <div class="bar-chart">
+      <div class="section-title" style="margin-bottom:12px">Weekly Calories</div>
+      <div class="bar-chart-row">${bars}</div>
+      <div class="bar-labels">${barLabels}</div>
+    </div>
+    <div class="section-header"><div class="section-title">Workout Log</div></div>
+    <div class="log-list">${logHtml}</div>`;
+}
+
+// ════════════════════════════════════ NUTRITION ═══════════════════════════════
+function renderNutrition() {
+  const g = USER.goal||'general', s = USER.sex||'male', w=USER.weight||70, h=USER.height||170, a=USER.age||25;
+  const diet = USER.diet||'nonveg';
+  let bmr = s==='male'?(88.36+13.4*w+4.8*h-5.7*a):(447.6+9.2*w+3.1*h-4.3*a);
+  let tdee=Math.round(bmr*1.55), cal=tdee, protein=Math.round(w*2), fat=Math.round(w*0.8);
+  if(g==='lose_weight'){cal=Math.round(tdee*0.82);fat=Math.round(w*0.7);}
+  if(g==='gain_muscle'){cal=Math.round(tdee*1.12);protein=Math.round(w*2.2);}
+  let carb=Math.round((cal-protein*4-fat*9)/4);if(carb<50)carb=50;
+
+  const dietLabels={nonveg:'🍗 Non-Veg',egg:'🥚 Eggetarian',veg:'🥗 Vegetarian',vegan:'🌱 Vegan',jain:'🙏 Jain'};
+  const dietColors={nonveg:'#ff6b35',egg:'#f59e0b',veg:'#10b981',vegan:'#06b6d4',jain:'#8b5cf6'};
+  const dietColor = dietColors[diet]||'#10b981';
+
+  const mealSlots = [
+    {key:'breakfast',label:'Breakfast',emoji:'🌅',always:true},
+    {key:'lunch',label:'Lunch',emoji:'☀️',always:true},
+    {key:'snack',label:'Snack',emoji:'🥜',always:true},
+    {key:'post_workout',label:'Post-Workout',emoji:'🏋️',always:false},
+    {key:'dinner',label:'Dinner',emoji:'🌙',always:true}
+  ];
+
+  function mealCard(slot) {
+    const db = MEALS_DB[slot.key];
+    if(!db||!db.length) return '';
+    // Show all options (3 alternatives per meal)
+    const mainOpt = db[0].options[diet]||db[0].options['veg'];
+    const ytSearch = encodeURIComponent(mainOpt.name + ' recipe');
+    const ytUrl = `https://www.youtube.com/shorts/${mainOpt.recipe}`;
+    const ytSearchUrl = `https://www.youtube.com/results?search_query=${ytSearch}+recipe+shorts`;
+    return `
+    <div class="nut-meal-card" id="meal-${slot.key}">
+      <div class="nut-meal-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px">${slot.emoji}</span>
+          <span class="meal-time-badge">${slot.label}</span>
+        </div>
+        <div class="nut-macros-mini">
+          <span style="color:#ef4444">🔥${mainOpt.cal}</span>
+          <span style="color:#3b82f6">P${mainOpt.p}g</span>
+        </div>
+      </div>
+      <div class="nut-meal-name">${mainOpt.name}</div>
+      <div class="nut-meal-desc">${mainOpt.desc}</div>
+      <div class="nut-pill-row">
+        <span class="nut-pill cal-pill">🔥 ${mainOpt.cal} kcal</span>
+        <span class="nut-pill p-pill">🥩 ${mainOpt.p}g P</span>
+        <span class="nut-pill c-pill">🍚 ${mainOpt.c}g C</span>
+        <span class="nut-pill f-pill">🥑 ${mainOpt.f}g F</span>
+      </div>
+      <div class="nut-action-row">
+        <a href="${ytSearchUrl}" target="_blank" class="nut-action-btn yt-btn">
+          <span style="font-size:16px">▶</span>
+          <span>Recipe Video</span>
+        </a>
+        <a href="${mainOpt.zomato}" target="_blank" class="nut-action-btn zomato-btn">
+          <span style="font-size:16px">🍽️</span>
+          <span>Zomato</span>
+        </a>
+        <a href="${mainOpt.swiggy}" target="_blank" class="nut-action-btn swiggy-btn">
+          <span style="font-size:16px">🛵</span>
+          <span>Swiggy</span>
+        </a>
+      </div>
+    </div>`;
+  }
+
+  const mealsHtml = mealSlots.map(s=>mealCard(s)).join('');
+  const dietTips = (DIET_TIPS[diet]||[]).concat(GENERAL_NUT_TIPS[g]||[]);
+  const tipsHtml = dietTips.map(t=>`<div class="nut-tip"><span>💡</span><div class="nut-tip-text">${t}</div></div>`).join('');
+
+  // Diet preference switcher
+  const dietOptions = Object.entries({nonveg:'🍗 Non-Veg',egg:'🥚 Egg',veg:'🥗 Veg',vegan:'🌱 Vegan',jain:'🙏 Jain'});
+  const dietSwitcher = dietOptions.map(([k,l])=>`<button class="diet-chip ${USER.diet===k?'active':''}" data-diet="${k}">${l}</button>`).join('');
+
+  document.getElementById('tab-nutrition').innerHTML = `
+    <div class="nut-hero" style="background:linear-gradient(135deg,${dietColor},${dietColor}cc)">
+      <div class="nut-hero-title">Your Nutrition Plan</div>
+      <div class="nut-hero-sub">${GOALS[g]?.label||'Fitness'} goal · ${cal} kcal/day · ${dietLabels[diet]}</div>
+    </div>
+    <div style="padding:12px 20px 4px">
+      <div style="font-size:12px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Diet Preference</div>
+      <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px">${dietSwitcher}</div>
+    </div>
+    <div class="macro-cards">
+      <div class="macro-card"><div class="macro-circle" style="background:#fff3e0;font-size:18px">🔥</div><div class="macro-val">${cal}</div><div class="macro-label">Calories</div></div>
+      <div class="macro-card"><div class="macro-circle" style="background:#e3f2fd;font-size:18px">🥩</div><div class="macro-val">${protein}g</div><div class="macro-label">Protein</div></div>
+      <div class="macro-card"><div class="macro-circle" style="background:#e8f5e9;font-size:18px">🍚</div><div class="macro-val">${carb}g</div><div class="macro-label">Carbs</div></div>
+      <div class="macro-card"><div class="macro-circle" style="background:#fce4ec;font-size:18px">🥑</div><div class="macro-val">${fat}g</div><div class="macro-label">Fat</div></div>
+    </div>
+    <div class="section-header"><div class="section-title">Today's Meals</div></div>
+    <div class="meal-list">${mealsHtml}</div>
+    <div class="section-header" style="margin-top:4px"><div class="section-title">Nutrition Tips</div></div>
+    <div class="nut-tip-list">${tipsHtml}</div>
+    <div style="height:16px"></div>`;
+
+  // Diet switcher clicks
+  document.querySelectorAll('.diet-chip').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      USER.diet = btn.dataset.diet;
+      save();
+      renderNutrition();
+      showToast(`Switched to ${btn.textContent} meals!`);
+    });
+  });
+}
+
+// ════════════════════════════════════ TIMER ═══════════════════════════════════
+function fmtT(s){return Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60}
+function updateRing(cur,tot){
+  const circ=502, off=circ*(1-cur/tot);
+  document.getElementById('timer-ring-el').style.strokeDashoffset=off;
+}
+function setTimer(s){
+  if(TIMER.running){clearInterval(TIMER.interval);TIMER.running=false;document.getElementById('btn-toggle').textContent='▶';}
+  TIMER.sec=s;TIMER.total=s;
+  document.getElementById('timer-display').textContent=fmtT(s);
+  document.getElementById('timer-status').textContent='READY';
+  updateRing(s,s);
+}
+function startTimer(){
+  if(TIMER.running)return;
+  TIMER.running=true;
+  document.getElementById('btn-toggle').textContent='⏸';
+  document.getElementById('timer-status').textContent='RUNNING';
+  TIMER.interval=setInterval(()=>{
+    TIMER.sec--;
+    if(TIMER.sec<=0){
+      clearInterval(TIMER.interval);TIMER.running=false;
+      document.getElementById('btn-toggle').textContent='▶';
+      document.getElementById('timer-status').textContent='DONE! 🎉';
+      document.getElementById('timer-display').textContent='0:00';
+      updateRing(0,TIMER.total);
+      showToast('Rest done! Time to crush the next set 💪');return;
+    }
+    document.getElementById('timer-display').textContent=fmtT(TIMER.sec);
+    updateRing(TIMER.sec,TIMER.total);
+  },1000);
+}
+function pauseTimer(){TIMER.running=false;clearInterval(TIMER.interval);document.getElementById('btn-toggle').textContent='▶';document.getElementById('timer-status').textContent='PAUSED';}
+
+// ════════════════════════════════════ TOAST ═══════════════════════════════════
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ════════════════════════════════════ EVENTS ══════════════════════════════════
+document.addEventListener('click',function(e){
+  // choice cards
+  const cc = e.target.closest('.choice-card[data-key]');
+  if(cc){
+    tempUser[cc.dataset.key]=cc.dataset.val;
+    cc.closest('.choice-grid').querySelectorAll('.choice-card').forEach(c=>c.classList.remove('selected'));
+    cc.classList.add('selected');
+    return;
+  }
+  // nav tabs
+  const nb = e.target.closest('[data-tab]');
+  if(nb && nb.classList.contains('nav-item')){ switchTab(nb.dataset.tab); return; }
+  // exercise cards
+  const ec = e.target.closest('.ex-card[data-ex]');
+  if(ec){ showDetail(ec.dataset.ex); return; }
+  // preset chips
+  const pc = e.target.closest('[data-secs]');
+  if(pc){
+    setTimer(parseInt(pc.dataset.secs));
+    document.querySelectorAll('.preset-chip').forEach(c=>c.classList.remove('active'));
+    pc.classList.add('active');
+    return;
+  }
+  // detail back
+  if(e.target.closest('#detail-back')){ showScreen('s-app'); renderHome(); return; }
+  // complete close
+  if(e.target.closest('#complete-close')){ document.getElementById('complete-overlay').classList.remove('show'); renderHome(); return; }
+  // timer controls
+  if(e.target.closest('#btn-toggle')){ TIMER.running?pauseTimer():startTimer(); return; }
+  if(e.target.closest('#btn-reset')){ setTimer(TIMER.total); return; }
+  if(e.target.closest('#btn-skip')){ clearInterval(TIMER.interval);TIMER.running=false;TIMER.sec=0;document.getElementById('timer-display').textContent='0:00';document.getElementById('timer-status').textContent='DONE! 🎉';document.getElementById('btn-toggle').textContent='▶';updateRing(0,TIMER.total);return;}
+});
+
+// ════════════════════════════════════ INIT ════════════════════════════════════
+load();
+if(USER && USER.name) {
+  launchApp();
+} else {
+  renderOnboardStep();
+}
+</script>
+</body>
+</html>
